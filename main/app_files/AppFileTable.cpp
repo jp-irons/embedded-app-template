@@ -54,4 +54,30 @@ static const FileEntry files[] = {
 
 // ------------------------------------------------------------
 // AppFileTable implementation
-// ---------------------------
+// ------------------------------------------------------------
+
+const framework_files::EmbeddedFile* AppFileTable::find(std::string_view path) const {
+    log.debug("find '%.*s'", (int)path.size(), path.data());
+
+    for (const auto& entry : files) {
+        if (path == entry.path) {
+            static framework_files::EmbeddedFile result;
+            result.data = entry.start;
+            result.size = entry.end - entry.start;
+            return &result;
+        }
+    }
+
+    log.debug("not found: '%.*s'", (int)path.size(), path.data());
+    return nullptr;
+}
+
+const uint8_t* AppFileTable::find(const char* path, size_t& outSize) const {
+    for (const auto& entry : files) {
+        if (std::strcmp(entry.path, path) == 0) {
+            outSize = entry.end - entry.start;
+            return entry.start;
+        }
+    }
+    return nullptr;
+}

@@ -38,4 +38,9 @@ class ApplicationContext {
     AppFileTable                          appFileTable_;
     framework_files::EmbeddedFileHandler  appFileHandler_;
 
-    // temperatureHandler_ is declared after fw_ so that fw_.getDevice
+    // temperatureHandler_ is declared after fw_ so that fw_.getDevice() is
+    // valid when the initialiser list runs.
+    TemperatureHandler temperatureHandler_;
+};
+
+} // namespace app
