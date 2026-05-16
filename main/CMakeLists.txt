@@ -15,4 +15,15 @@ idf_component_register(
         framework
         framework_files
         http
-    
+        http_types
+        logger
+        ota
+        wifi_manager
+        esp_driver_tsens
+    INCLUDE_DIRS
+        .
+        app
+        app_files
+    EMBED_FILES
+        ${APP_EMBED_FILES}
+)
