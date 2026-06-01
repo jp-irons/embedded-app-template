@@ -2,47 +2,6 @@
 
 Operational procedures for framework maintainers: versioning, cutting releases, and partition table changes. For coding conventions and component architecture see `CONTRIBUTING.md`.
 
-## Versioning
-
-The version string lives in `version.txt` at the repository root. Bump it before building a release — the build system embeds it in the firmware binary, where it is accessible at runtime via `esp_app_get_description()->version`, and the OTA update logic uses it to decide whether a download is needed.
-
-After a successful build, `build/embedded_framework.bin` is copied to `build/embedded_framework-<version>.bin` automatically.
-
-## Release process
-
-Releases are built and published automatically by GitHub Actions when a version tag is pushed. The workflow (`.github/workflows/release.yml`) triggers on tags matching `v*`, builds the firmware, and uploads `firmware.bin` and `version.txt` as release assets. Devices polling GitHub will pick up the update on their next OTA check once the release is published.
-
-**Pre-flight checklist**
-
-1. Bump `version.txt` to the new version string (e.g. `0.0.3`).
-2. Commit and push `version.txt` to `development`.
-3. Verify CI is green on the `development` branch.
-
-**Tagging and publishing**
-
-```bash
-git push origin development:main    # bring main up to date without switching branches
-git tag v0.0.3                      # tag must match version.txt exactly (without the v prefix)
-# If annotation is required tag like this:
-git tag -a v0.0.3 -m "brief release note"
-git push origin v0.0.3              # triggers the Actions build and release
-
-```
-
-The workflow validates that the tag version matches `version.txt` before building — if they are out of sync it fails immediately.
-
-> **Do not push a tag until `version.txt` has been committed and pushed.**
-
-## Delete a release
-
-In GitHub delete the release, then delete the tags
-```bash
-git tag -d <tagname>  
-git push origin --delete <tagname>
-```
-
-
-
 ## Template repository
 
 The [embedded-app-template](https://github.com/jp-irons/embedded-app-template) repository is a GitHub template that gives app developers a ready-to-build starting point. Its submodule is pinned to a specific framework release, so new apps always start from a known-good baseline.
@@ -56,12 +15,14 @@ Once the framework release is published and verified:
 all this from directory above where embedded-app-template should go.
 
 ```bash
-git clone <repo-url> embedded-app-template
+git clone --recurse-submodules https://github.com/jp-irons/embedded-app-template.git
 cd embedded-app-template
 git submodule update --init --recursive
 
-cd <submodule-path>
+git -C framework describe --tags
+cd framework
 git fetch --tags
+git -C . describe --tags
 git checkout <tagname>       # e.g. v1.2.0
 cd ..
 
@@ -69,6 +30,7 @@ cd ..
 cp framework/sdkconfig sdkconfig
 cp framework/sdkconfig.defaults sdkconfig.defaults
 cp framework/partitions.csv partitions.csv
+cp framework/main .
 
 # Update the version placeholder
 echo "0.1.0" > version.txt           # reset to a generic app starting point — not the framework version
