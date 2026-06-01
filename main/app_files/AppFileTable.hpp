@@ -7,14 +7,10 @@
  *
  * Mirror of FrameworkFileTable: each file listed here has a corresponding
  * entry in AppFileTable.cpp that declares the EMBED_FILES linker symbols.
- *
- * To add a new file:
- *  1. Place it under main/app_files/files/
- *  2. Add extern declarations for its linker symbols in AppFileTable.cpp
- *  3. Add a FileEntry row in the files[] table in AppFileTable.cpp
+ * Add new app files to main/app/files/ and update AppFileTable.cpp to match.
  */
 class AppFileTable : public framework_files::EmbeddedFileTable {
-  public:
+public:
     static constexpr const char* TAG = "AppFileTable";
 
     const framework_files::EmbeddedFile* find(std::string_view path) const override;
